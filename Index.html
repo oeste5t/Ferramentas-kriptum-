@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kriptum - Ferramentas</title>
+    <style>
+        :root {
+            --bg-color: #050505; /* Preto um pouco mais profundo */
+            --card-bg: #121212;
+            --primary-color: #007AFF;
+            --primary-glow: rgba(0, 122, 255, 0.3);
+            --text-main: #FFFFFF;
+            --text-muted: #8E8E93;
+            --border-color: #2C2C2E;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Remove brilho azul padrão do Android */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Animações Premium */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Topbar & Config */
+        .topbar {
+            padding: 25px 20px 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeInScale 0.5s ease-out;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #FFF, #A0A0A0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .api-config {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 12px;
+            display: flex;
+            gap: 10px;
+            margin: 0 20px 20px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all var(--transition-speed) ease;
+            animation: fadeInUp 0.5s ease-out 0.1s both;
+        }
+
+        .api-config:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        .api-config input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            flex-grow: 1;
+            font-size: 14px;
+            padding: 5px;
+        }
+
+        .api-config button {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .api-config button:active {
+            transform: scale(0.95);
+        }
+
+        /* Container Principal */
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px;
+            scroll-behavior: smooth;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 15px;
+            margin-bottom: 25px;
+            animation: fadeInScale 0.5s ease-out 0.2s both;
+        }
+
+        /* Cards das Ferramentas */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 22px;
+            cursor: pointer;
+            transition: all var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease-out both;
+        }
+
+        /* Efeito cascata na entrada dos cards */
+        .tool-card:nth-child(1) { animation-delay: 0.1s; }
+        .tool-card:nth-child(2) { animation-delay: 0.2s; }
+        .tool-card:nth-child(3) { animation-delay: 0.3s; }
+        .tool-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .tool-card:hover:not(.disabled), .tool-card:active:not(.disabled) {
+            transform: translateY(-3px) scale(0.99);
+            border-color: var(--primary-color);
+            box-shadow: 0 8px 25px var(--primary-glow);
+        }
+
+        .tool-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .tool-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tool-title::after {
+            content: '→';
+            color: var(--primary-color);
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover:not(.disabled) .tool-title::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Telas das Ferramentas (Workspace) */
+        .workspace {
+            display: none;
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .workspace h1 {
+            text-align: left;
+            font-size: 26px;
+            margin-bottom: 25px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:active {
+            transform: translateX(-5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Inputs e Botões das Ferramentas */
+        .input-group {
+            margin-bottom: 20px;
+            animation: fadeInUp 0.5s ease-out 0.1s both;
+        }
+
+        .input-label {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .custom-input, .custom-select {
+            width: 100%;
+            background: #18181A;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .custom-input:focus, .custom-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-glow), inset 0 2px 4px rgba(0,0,0,0.1);
+            background: #1C1C1E;
+        }
+
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238E8E93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 18px;
+        }
+
+        .row-inputs {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Upload Botão */
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        
+        .upload-icon-btn {
+            background: #18181A;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn-wrapper:hover .upload-icon-btn {
+            border-color: var(--primary-color);
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .btn-action {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-action:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 10px rgba(0, 122, 255, 0.2);
+        }
+        
+        .btn-action:disabled {
+            background: #333;
+            box-shadow: none;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-box {
+            margin-top: 25px;
+            background: #121212;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 100px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-main);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            animation: fadeInUp 0.4s ease-out;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Estilo do bloco de código */
+        .code-container {
+            position: relative;
+            margin: 20px 0;
+            background: #0A0A0C;
+            border-radius: 10px;
+            border: 1px solid #2C2C2E;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .code-container:hover {
+            border-color: #444;
+        }
+
+        .copy-code-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s ease;
+        }
+
+        .copy-code-btn:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .copy-code-btn:active {
+            transform: scale(0.9);
+        }
+
+        .code-container pre {
+            margin: 0;
+            padding: 45px 20px 20px 20px;
+            overflow-x: auto;
+            color: #00FF41;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        /* Navegação Inferior */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 25px 0; /* Espaço extra para barra do iPhone */
+            border-top: 1px solid rgba(255,255,255,0.08);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .nav-item:active {
+            transform: scale(0.9);
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item svg {
+            width: 26px;
+            height: 26px;
+            margin-bottom: 4px;
+            fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item.active svg {
+            transform: translateY(-2px);
+        }
+
+        /* Toast de Notificação */
+        .toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: #2C2C2E;
+            border: 1px solid #444;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .file-name-display {
+            color: var(--primary-color);
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            display: none;
+            animation: fadeInScale 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast" id="toast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        <span id="toast-msg">Notificação</span>
+    </div>
+
+    <!-- TELA PRINCIPAL (DASHBOARD) -->
+    <div id="view-dashboard">
+        <div class="topbar">
+            <h1>Kriptum</h1>
+        </div>
+
+        <div class="api-config">
+            <input type="password" id="apiKey" placeholder="Sua Gemini API Key" />
+            <button onclick="salvarKey()">Salvar</button>
+        </div>
+
+        <div class="main-content" style="padding-top: 0;">
+            <p class="subtitle">Selecione uma ferramenta para iniciar</p>
+            
+            <div class="tools-grid">
+                <div class="tool-card" onclick="abrirFerramenta('legendas')">
+                    <div class="tool-title">Gerador de Legendas</div>
+                </div>
+                <div class="tool-card" onclick="abrirFerramenta('frases')">
+                    <div class="tool-title">Fisolofo Viral (Frases)</div>
+                </div>
+                <div class="tool-card" onclick="abrirFerramenta('carrossel')">
+                    <div class="tool-title">Gerador de Carrossel 3</div>
+                </div>
+                <div class="tool-card disabled">
+                    <div class="tool-title">Gerador de Vídeos (Breve)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WORKSPACE: GERADOR DE LEGENDAS -->
+    <div id="view-legendas" class="workspace main-content">
+        <button class="back-btn" onclick="voltarDashboard()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Voltar
+        </button>
+        <h1>Gerador de Legendas</h1>
+        
+        <div class="input-group">
+            <label class="input-label">Mídia e Frase (Opcional)</label>
+            <div class="row-inputs">
+                <div class="upload-btn-wrapper">
+                    <div class="upload-icon-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    </div>
+                    <input type="file" id="file-legendas" accept="image/*,video/*" onchange="mostrarNomeArquivo('file-legendas', 'name-legendas')" />
+                </div>
+                <input type="text" id="frase-legendas" class="custom-input" placeholder="Digite uma frase ou contexto..." />
+            </div>
+            <div id="name-legendas" class="file-name-display">✓ Arquivo carregado</div>
+        </div>
+
+        <button class="btn-action" id="btn-legendas" onclick="gerarLegenda()">Criar Legenda</button>
+        
+        <div class="result-box" id="resultado-legendas">O resultado aparecerá aqui...</div>
+    </div>
+
+    <!-- WORKSPACE: GERADOR DE FRASES (FISOLOFO) -->
+    <div id="view-frases" class="workspace main-content">
+        <button class="back-btn" onclick="voltarDashboard()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Voltar
+        </button>
+        <h1>Fisolofo Viral</h1>
+        
+        <div class="input-group">
+            <label class="input-label">Mídia e Contexto</label>
+            <div class="row-inputs">
+                <div class="upload-btn-wrapper">
+                    <div class="upload-icon-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    </div>
+                    <input type="file" id="file-frases" accept="image/*,video/*" onchange="mostrarNomeArquivo('file-frases', 'name-frases')" />
+                </div>
+                <input type="text" id="frase-frases" class="custom-input" placeholder="Descreva a cena ou assunto..." />
+            </div>
+            <div id="name-frases" class="file-name-display">✓ Arquivo carregado</div>
+        </div>
+
+        <button class="btn-action" id="btn-frases" onclick="gerarFrases()">Gerar Frases</button>
+        
+        <div class="result-box" id="resultado-frases">O resultado aparecerá aqui...</div>
+    </div>
+
+    <!-- WORKSPACE: GERADOR DE CARROSSEL 3 -->
+    <div id="view-carrossel" class="workspace main-content">
+        <button class="back-btn" onclick="voltarDashboard()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Voltar
+        </button>
+        <h1>Gerador de Carrossel</h1>
+        
+        <div class="input-group">
+            <label class="input-label">Estilo do Carrossel</label>
+            <select id="carrossel-funcao" class="custom-select">
+                <option value="Função 1">Função 1: Clássico Sentimental</option>
+                <option value="Função 2">Função 2: Metáfora Absurda</option>
+                <option value="Função 3">Função 3: Crítica Social / Flow Viral</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Quantidade de Slides</label>
+            <input type="number" id="carrossel-qtd" class="custom-input" value="5" min="2" max="10" placeholder="Ex: 5" />
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Tema ou Ideia</label>
+            <input type="text" id="carrossel-tema" class="custom-input" placeholder="Ex: O cansaço da vida adulta..." />
+        </div>
+
+        <button class="btn-action" id="btn-carrossel" onclick="gerarCarrossel()">Criar Carrossel</button>
+        
+        <div class="result-box" id="resultado-carrossel">Aguardando geração...</div>
+    </div>
+
+    <!-- Navegação Inferior -->
+    <div class="bottom-nav" id="bottom-nav">
+        <div class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            Início
+        </div>
+        <div class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M22.7 14.3L21.7 15.3L19.7 13.3L20.7 12.3C20.8 12.2 20.9 12.1 21.1 12.1C21.2 12.1 21.4 12.2 21.5 12.3L22.8 13.6C22.9 13.8 22.9 14.1 22.7 14.3ZM13 19.9V22H15.1L21.2 15.9L19.2 13.9L13 19.9ZM21.6 8.5L20.1 7L21.2 5.9C21.4 5.7 21.4 5.4 21.2 5.2L19.8 3.8C19.6 3.6 19.3 3.6 19.1 3.8L18 4.9L16.5 3.4C16.3 3.2 16 3.2 15.8 3.4L14.4 4.8C14.2 5 14.2 5.3 14.4 5.5L15.5 6.6L12.6 9.5C12.4 9.3 12.1 9.2 11.8 9.2C10.7 9.2 9.8 10.1 9.8 11.2C9.8 11.6 10 12 10.2 12.3L4.4 18.1C4 18.5 4 19.1 4.4 19.5L5.5 20.6C5.9 21 6.5 21 6.9 20.6L12.7 14.8C13 15 13.4 15.2 13.8 15.2C14.9 15.2 15.8 14.3 15.8 13.2C15.8 12.9 15.7 12.6 15.5 12.4L18.4 9.5L19.5 10.6C19.7 10.8 20 10.8 20.2 10.6L21.6 9.2C21.8 9 21.8 8.7 21.6 8.5Z"/></svg>
+            Ferramentas
+        </div>
+    </div>
+
+    <script>
+        // Inicialização e UI
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedKey = localStorage.getItem('kriptum_gemini_key');
+            if(savedKey) document.getElementById('apiKey').value = savedKey;
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function salvarKey() {
+            const key = document.getElementById('apiKey').value;
+            localStorage.setItem('kriptum_gemini_key', key);
+            showToast('Chave API Salva com sucesso!');
+        }
+
+        function abrirFerramenta(nome) {
+            document.getElementById('view-dashboard').style.display = 'none';
+            document.getElementById('bottom-nav').style.display = 'none';
+            
+            document.getElementById('view-legendas').style.display = 'none';
+            document.getElementById('view-frases').style.display = 'none';
+            document.getElementById('view-carrossel').style.display = 'none';
+            
+            if (nome === 'legendas') document.getElementById('view-legendas').style.display = 'block';
+            if (nome === 'frases') document.getElementById('view-frases').style.display = 'block';
+            if (nome === 'carrossel') document.getElementById('view-carrossel').style.display = 'block';
+            
+            // Rolar para o topo suavemente ao abrir
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function voltarDashboard() {
+            document.getElementById('view-legendas').style.display = 'none';
+            document.getElementById('view-frases').style.display = 'none';
+            document.getElementById('view-carrossel').style.display = 'none';
+            
+            document.getElementById('view-dashboard').style.display = 'block';
+            document.getElementById('bottom-nav').style.display = 'flex';
+        }
+
+        function mostrarNomeArquivo(inputId, displayId) {
+            const fileInput = document.getElementById(inputId);
+            const display = document.getElementById(displayId);
+            if(fileInput.files.length > 0) {
+                // Pega nome curto para não quebrar layout
+                let nome = fileInput.files[0].name;
+                if(nome.length > 20) nome = nome.substring(0, 20) + "...";
+                display.innerText = "✓ Arquivo: " + nome;
+                display.style.display = 'block';
+            } else {
+                display.style.display = 'none';
+            }
+        }
+
+        // Sistema de formatação de Markdown para blocos de código com botão de copiar
+        function formatarMarkdown(texto) {
+            let contador = 0;
+            return texto.replace(/```(?:text)?\n([\s\S]*?)```/g, function(match, codigo) {
+                contador++;
+                const idUnico = 'codigo-gerado-' + Date.now() + '-' + contador;
+                const codigoSeguro = codigo.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                
+                return `
+                <div class="code-container">
+                    <button class="copy-code-btn" onclick="copiarCodigoEspecifico('${idUnico}')">Copiar</button>
+                    <pre><code id="${idUnico}">${codigoSeguro}</code></pre>
+                </div>`;
+            });
+        }
+
+        window.copiarCodigoEspecifico = function(idElemento) {
+            const textoParaCopiar = document.getElementById(idElemento).innerText;
+            navigator.clipboard.writeText(textoParaCopiar).then(() => {
+                showToast("Copiado para a área de transferência!");
+            }).catch(err => {
+                showToast("Erro ao copiar.");
+            });
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // ==========================================
+        // 1. LÓGICA DO GERADOR DE LEGENDAS
+        // ==========================================
+        window.gerarLegenda = async function() {
+            const apiKey = localStorage.getItem('kriptum_gemini_key');
+            if(!apiKey) return showToast("Salve sua API Key na tela inicial!");
+
+            const fileInput = document.getElementById('file-legendas');
+            const frase = document.getElementById('frase-legendas').value;
+            const btn = document.getElementById('btn-legendas');
+            const resultBox = document.getElementById('resultado-legendas');
+
+            btn.innerText = "Processando mágica...";
+            btn.disabled = true;
+            resultBox.innerText = "Analisando contexto...";
+
+            try {
+                let parts = [];
+                const systemPrompt = `Você é um copywriter especialista em redes sociais. Sua missão é criar legendas dinâmicas e engajadoras, com linguagem extremamente simples e direta, sem jargões.
+
+REGRAS OBRIGATÓRIAS:
+1. Comece com um título chamativo de no máximo 3 palavras (use letras maiúsculas), seguido imediatamente por 1 emoji clássico e muito conhecido que combine perfeitamente com o título.
+2. Escreva 5 parágrafos curtos (máximo 3 linhas cada).
+3. Termine com 1 Call to Action (CTA) estimulando os comentários.
+4. Finalize com 5 hashtags estratégicas baseadas no tema.`;
+
+                parts.push({ text: systemPrompt });
+                if (frase) parts.push({ text: `Contexto/Frase do usuário: ${frase}` });
+
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const base64 = await fileToBase64(file);
+                    parts.push({ inlineData: { mimeType: file.type, data: base64 } });
+                }
+
+                if (parts.length === 1) throw new Error("Forneça uma frase ou um arquivo.");
+
+                const payload = { contents: [{ parts: parts }] };
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if(data.error) throw new Error(data.error.message);
+                
+                resultBox.innerText = data.candidates[0].content.parts[0].text;
+            } catch(e) {
+                resultBox.innerHTML = `<span style='color:#FF3B30;'>Erro: ${e.message}</span>`;
+            } finally {
+                btn.innerText = "Criar Legenda";
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 2. LÓGICA DO FISOLOFO VIRAL (FRASES)
+        // ==========================================
+        window.gerarFrases = async function() {
+            const apiKey = localStorage.getItem('kriptum_gemini_key');
+            if(!apiKey) return showToast("Salve sua API Key na tela inicial!");
+
+            const fileInput = document.getElementById('file-frases');
+            const frase = document.getElementById('frase-frases').value;
+            const btn = document.getElementById('btn-frases');
+            const resultBox = document.getElementById('resultado-frases');
+
+            btn.innerText = "Pensando na vibe...";
+            btn.disabled = true;
+            resultBox.innerText = "Analisando a mídia...";
+
+            try {
+                let parts = [];
+                const systemPrompt = `Você é o "fisolofo viral", um assistente extremamente prestativo e especialista em Copywriting Viral para redes sociais (TikTok, Reels).
+Seu objetivo é analisar vídeos/cenas e criar frases.
+
+FLUXO OBRIGATÓRIO:
+1. Analise o vídeo/cena e escolha UM modo: MODO DARK/MINDSET, MODO SAD, MODO RELACIONAMENTO/AMIZADE ou MODO DIA A DIA/MEME.
+2. Use SEMPRE português brasileiro simples, direto e coloquial.
+3. Entregue TODA frase primeiro em texto normal e, logo abaixo, a MESMA frase dentro de um bloco de código (três crases).
+
+ESTRUTURA FINAL DE ENTREGA:
+Diga qual modo escolheu e ENTREGUE AS TRÊS CATEGORIAS ABAIXO (cada uma com 3 opções):
+[Categoria 1: Estilo "POV"] 
+[Categoria 2: Estilo "Eu" ou "Minha reação sincera"] 
+[Categoria 3: Estilo "Quando"]`;
+
+                parts.push({ text: systemPrompt });
+                if (frase) parts.push({ text: `Contexto do usuário: ${frase}` });
+
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const base64 = await fileToBase64(file);
+                    parts.push({ inlineData: { mimeType: file.type, data: base64 } });
+                }
+
+                if (parts.length === 1) throw new Error("Descreva a cena ou faça upload de um arquivo.");
+
+                const payload = { contents: [{ parts: parts }] };
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if(data.error) throw new Error(data.error.message);
+                
+                resultBox.innerHTML = formatarMarkdown(data.candidates[0].content.parts[0].text);
+            } catch(e) {
+                resultBox.innerHTML = `<span style='color:#FF3B30;'>Erro: ${e.message}</span>`;
+            } finally {
+                btn.innerText = "Gerar Frases";
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 3. LÓGICA DO GERADOR DE CARROSSEL 3
+        // ==========================================
+        window.gerarCarrossel = async function() {
+            const apiKey = localStorage.getItem('kriptum_gemini_key');
+            if(!apiKey) return showToast("Salve sua API Key na tela inicial!");
+
+            const funcao = document.getElementById('carrossel-funcao').value;
+            const qtdSlides = document.getElementById('carrossel-qtd').value;
+            const tema = document.getElementById('carrossel-tema').value;
+            const btn = document.getElementById('btn-carrossel');
+            const resultBox = document.getElementById('resultado-carrossel');
+
+            if(!tema) return showToast("Digite um tema para criar!");
+
+            btn.innerText = "Gerando prompts...";
+            btn.disabled = true;
+            resultBox.innerText = `Analisando diretrizes e gerando ${qtdSlides} slides...`;
+
+            const systemPrompt = `Você é um gerador automatizado de carrosséis de alto impacto para o Instagram, especializado em páginas dark de reflexão e dilemas da vida moderna. O usuário enviará um "Tema", uma "Função" e a quantidade de slides. Sua tarefa é processar e entregar a estrutura abaixo para EXATAMENTE ${qtdSlides} slides.
+
+--- DIRETRIZES DE ESTILO PARA AS FUNÇÕES ---
+
+FUNÇÃO 1: Formato Clássico Sentimental
+- Foco: Sentimentos profundos e identificação imediata para o público jovem/adulto.
+- Imagens: Fundo ultra-realista de fotografia analógica imperfect (termos como "35mm amateur film photograph", "candid everyday snapshot", "grainy texture", "unposed look", "real human flaws"). Sem rostos perfeitos de IA.
+- Texto nas Imagens: Simples, normal e reto, escrito em uma única fonte branca e limpa SEM SERIFA (sans-serif).
+
+FUNÇÃO 2: Formato Metáfora Visual Absurda
+- Foco: Verdades incômodas e ironias da vida. Intercale obrigatoriamente slides com texto e slides 100% sem texto.
+- Imagens: Metáforas visuais com objetos do dia a dia combinados de forma impossível (ex: metade de tangerina colada na metade de um alho; chave derretida em cadeado de plástico). Estilo foto real de estúdio, macro ou still de produto, sem parecer arte digital 3D.
+- Texto nas Imagens: DEVE ser escrito de forma limpa em uma fonte branca elegante e reta COM SERIFA (serif), estilo revista premium ou pôster conceitual.
+
+FUNÇÃO 3: Formato Compilação de Críticas Sociais
+- Foco: O Slide 1 (Capa) deve ser um gancho forte de curiosidade ou POV de identificação. Os slides seguintes trazem críticas.
+- Imagens: SEMPRE ilustrações editoriais de cartum conceitual limpo, com traço simples e cores foscas (termos como "minimal editorial conceptual cartoon illustration, flat solid colors, sharp ink outlines"). Evite visual 3D.
+- Regra de Ouro: Metade dos slides deve vir COMPLETAMENTE SEM TEXTO, deixando apenas a imagem falar por si.
+- Texto nas Imagens: Simples, normal e reto, escrito em uma única fonte branca e limpa SEM SERIFA (sans-serif).
+
+--- REGRAS OBRIGATÓRIAS DE SEGURANÇA E FORMATAÇÃO ---
+1. ZERO COLCHETES NO PROMPT EM INGLÊS: Ao criar o prompt em inglês, NUNCA use colchetes [ ], chaves { } ou aspas duplas internas para indicar o texto. Escreva o comando de texto de forma corrida e direta.
+2. TEXTO E EXPLICAÇÃO FORA DA CAIXA: O texto explicativo do slide e o texto em português devem ficar do lado de fora da caixa de código.
+3. EXCLUSIVIDADE DA CAIXA DE CÓDIGO: A caixa de código de cada slide deve conter APENAS E EXCLUSIVAMENTE o prompt em inglês puro para o gerador de imagens.
+
+--- FORMATO OBRIGATÓRIO DA RESPOSTA (OUTPUT) ---
+Siga estritamente esta estrutura de resposta para ${qtdSlides} slides:
+
+TEMA ESCOLHIDO: [Exiba aqui o tema]
+
+- Slide 1
+Texto na imagem: "Frase do slide aqui"
+Prompt para copiar:
+\`\`\`text
+[Apenas o prompt em inglês puro aqui dentro]
+\`\`\`
+
+- Slide 2
+Texto na imagem: "Frase do slide aqui"
+Prompt para copiar:
+\`\`\`text
+[Apenas o prompt em inglês puro aqui dentro]
+\`\`\`
+(Repita para a quantidade solicitada)`;
+
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: systemPrompt },
+                        { text: `TEMA: ${tema}\nFUNÇÃO ESCOLHIDA: ${funcao}\nQUANTIDADE DE SLIDES: ${qtdSlides}` }
+                    ]
+                }]
+            };
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if(data.error) throw new Error(data.error.message);
+                
+                resultBox.innerHTML = formatarMarkdown(data.candidates[0].content.parts[0].text);
+            } catch(e) {
+                resultBox.innerHTML = `<span style='color:#FF3B30;'>Erro: ${e.message}</span>`;
+            } finally {
+                btn.innerText = "Criar Carrossel";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+  </html>
